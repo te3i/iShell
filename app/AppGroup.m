@@ -98,10 +98,34 @@ static NSDictionary *AppEntitlements(void) {
 }
 
 NSArray<NSString *> *CurrentAppGroups(void) {
-    return AppEntitlements()[@"com.apple.security.application-groups"];
+    NSArray<NSString *> *groups = AppEntitlements()[@"com.apple.security.application-groups"];
+    return [groups isKindOfClass:NSArray.class] ? groups : @[];
 }
 
 NSURL *ContainerURL(void) {
-    NSString *appGroup = CurrentAppGroups()[0];
-    return [NSFileManager.defaultManager containerURLForSecurityApplicationGroupIdentifier:appGroup];
+    // LiveContainer intentionally does not apply guest-app entitlements. A
+    // TrollStore-signed build can also be installed without a provisioned App
+    // Group. Passing nil or an unavailable group here made the root filesystem
+    // URL nil and caused a crash before the first screen was shown.
+    for (NSString *appGroup in CurrentAppGroups()) {
+        if (![appGroup isKindOfClass:NSString.class] || appGroup.length == 0)
+            continue;
+        NSURL *url = [NSFileManager.defaultManager
+                      containerURLForSecurityApplicationGroupIdentifier:appGroup];
+        if (url != nil)
+            return url;
+    }
+
+    // Keep the filesystem private to this app when an App Group is not
+    // available. This works in LiveContainer and preserves existing data for
+    // normal installations that do have the App Group entitlement.
+    NSFileManager *manager = NSFileManager.defaultManager;
+    NSURL *fallback = [manager URLsForDirectory:NSApplicationSupportDirectory
+                                       inDomains:NSUserDomainMask].firstObject;
+    fallback = [fallback URLByAppendingPathComponent:@"iShell" isDirectory:YES];
+    [manager createDirectoryAtURL:fallback
+       withIntermediateDirectories:YES
+                        attributes:nil
+                             error:nil];
+    return fallback;
 }
