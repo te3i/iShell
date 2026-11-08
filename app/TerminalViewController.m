@@ -2511,7 +2511,11 @@
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
     if (urls.count > 0) {
         NSURL *selectedURL = urls[0];
-        if (self.importingPythonFile) {
+        // Treat every .py selected from Files as an import. This also covers
+        // the general "Browse Files" action, so the file is not left only in
+        // the Files provider while the terminal tries to open /root/foo.py.
+        BOOL isPythonFile = [selectedURL.pathExtension.lowercaseString isEqualToString:@"py"];
+        if (self.importingPythonFile || isPythonFile) {
             self.importingPythonFile = NO;
             BOOL accessing = [selectedURL startAccessingSecurityScopedResource];
             [self importAndRunPythonFileAtURL:selectedURL];
