@@ -62,7 +62,6 @@ jobs:
             -project iSH.xcodeproj \
             -scheme iSH \
             -configuration Release \
-            -parallelizeTargets NO \
             -jobs 1 \
             -destination 'generic/platform=iOS' \
             -archivePath "$PWD/build/iShell.xcarchive" \
