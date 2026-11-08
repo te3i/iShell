@@ -59,9 +59,13 @@ jobs:
           # cross-configuring against the iOS SDK. iOS uses fseeko/ftello.
           sed -i.bak '/^#define HAVE__FSEEKI64 1$/d' deps/config.h
           sed -i.bak '/^#define HAVE__FSEEKI64 1$/d' deps/libarchive/config.h
+          # futimesat is also unavailable on iOS; use the existing utimes path.
+          sed -i.bak '/^#define HAVE_FUTIMESAT 1$/d' deps/config.h
+          sed -i.bak '/^#define HAVE_FUTIMESAT 1$/d' deps/libarchive/config.h
           rm -f deps/config.h.bak deps/libarchive/config.h.bak
           grep -q '^#define __LIBARCHIVE_CONFIG_H_INCLUDED 1$' deps/config.h
           ! grep -q '^#define HAVE__FSEEKI64 1$' deps/config.h
+          ! grep -q '^#define HAVE_FUTIMESAT 1$' deps/config.h
           test -s deps/config.h
 
       - name: Build unsigned archive
