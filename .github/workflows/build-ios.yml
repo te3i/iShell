@@ -48,6 +48,8 @@ jobs:
             -DENABLE_CAT=OFF \
             -DENABLE_UNZIP=OFF \
             -DENABLE_INSTALL=OFF \
+            -DENABLE_ACL=OFF \
+            -DENABLE_XATTR=OFF \
             -DENABLE_TEST=OFF
           cp build/libarchive-config/config.h deps/libarchive/config.h
           test -s deps/libarchive/config.h
