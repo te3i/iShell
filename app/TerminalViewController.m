@@ -89,6 +89,7 @@
 // Code editor save state
 @property (nonatomic, strong) NSString *pendingSaveContent;
 @property (nonatomic, strong) NSString *pendingSaveFilename;
+@property (nonatomic) BOOL importingPythonFile;
 
 @end
 
@@ -957,6 +958,14 @@
     }];
     [menu addAction:browseAction];
 
+    // Import and run a Python script from Files.
+    UIAlertAction *runPythonAction = [UIAlertAction actionWithTitle:@"Run Python File (.py)"
+                                                              style:UIAlertActionStyleDefault
+                                                            handler:^(UIAlertAction *action) {
+        [self showPythonFilePicker];
+    }];
+    [menu addAction:runPythonAction];
+
     // Create New File action
     UIAlertAction *createAction = [UIAlertAction actionWithTitle:@"Create New File"
                                                            style:UIAlertActionStyleDefault
@@ -1009,6 +1018,61 @@
     }
 
     [self presentViewController:picker animated:YES completion:nil];
+}
+
+- (void)showPythonFilePicker {
+    self.importingPythonFile = YES;
+    UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc]
+                                             initWithDocumentTypes:@[@"public.data"]
+                                             inMode:UIDocumentPickerModeImport];
+    picker.delegate = (id<UIDocumentPickerDelegate>)self;
+    picker.allowsMultipleSelection = NO;
+    if (@available(iOS 13.0, *)) {
+        picker.shouldShowFileExtensions = YES;
+    }
+
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad && picker.popoverPresentationController) {
+        picker.popoverPresentationController.sourceView = self.filesButton;
+        picker.popoverPresentationController.sourceRect = self.filesButton.bounds;
+    }
+    [self presentViewController:picker animated:YES completion:nil];
+}
+
+- (NSString *)shellQuote:(NSString *)value {
+    return [NSString stringWithFormat:@"'%@'", [value stringByReplacingOccurrencesOfString:@"'" withString:@"'\\''"]];
+}
+
+- (void)importAndRunPythonFileAtURL:(NSURL *)sourceURL {
+    NSString *filename = sourceURL.lastPathComponent;
+    if (filename.length == 0 || ![filename.pathExtension.lowercaseString isEqualToString:@"py"]) {
+        [self showMessage:@"Python file required" subtitle:@"Select a file ending in .py."];
+        return;
+    }
+
+    NSURL *containerURL = ContainerURL();
+    NSURL *homeURL = [[containerURL URLByAppendingPathComponent:@"roots"]
+                      URLByAppendingPathComponent:@"alpine/data"];
+    NSError *error = nil;
+    [[NSFileManager defaultManager] createDirectoryAtURL:homeURL
+                              withIntermediateDirectories:YES
+                                               attributes:nil
+                                                    error:&error];
+    if (error) {
+        [self showMessage:@"Import failed" subtitle:error.localizedDescription];
+        return;
+    }
+
+    NSData *script = [NSData dataWithContentsOfURL:sourceURL options:NSDataReadingMappedIfSafe error:&error];
+    if (!script || ![script writeToURL:[homeURL URLByAppendingPathComponent:filename]
+                              options:NSDataWritingAtomic
+                                error:&error]) {
+        [self showMessage:@"Import failed" subtitle:error.localizedDescription ?: @"Could not copy the Python file."];
+        return;
+    }
+
+    // The imported file is copied to the iSH home directory and starts immediately.
+    NSString *command = [NSString stringWithFormat:@"python3 ~/%@\n", [self shellQuote:filename]];
+    [self.terminal sendInput:[command dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
 - (void)showCreateFileDialog {
@@ -2398,6 +2462,15 @@
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
     if (urls.count > 0) {
         NSURL *selectedURL = urls[0];
+        if (self.importingPythonFile) {
+            self.importingPythonFile = NO;
+            BOOL accessing = [selectedURL startAccessingSecurityScopedResource];
+            [self importAndRunPythonFileAtURL:selectedURL];
+            if (accessing) {
+                [selectedURL stopAccessingSecurityScopedResource];
+            }
+            return;
+        }
         NSLog(@"✅ File saved to: %@", selectedURL.path);
 
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"File Saved"
@@ -2414,6 +2487,8 @@
 
 - (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller {
     NSLog(@"📝 File save cancelled");
+
+    self.importingPythonFile = NO;
 
     // Clear pending save state
     self.pendingSaveContent = nil;

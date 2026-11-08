@@ -316,6 +316,27 @@ char *(*get_documents_directory)(void);
                            ]]
                             appearance:nil
             ],
+            [[self alloc] initWithName:@"Kali Linux"
+                          lightPalette:[[Palette alloc] initWithForegroundColor:@"#17202a"
+                                                                backgroundColor:@"#f4f7fb"
+                                                                    cursorColor:@"#00a8ff"
+                                                          colorPaletteOverrides:@[
+                            @"#17202a", @"#c0392b", @"#27ae60", @"#f1c40f",
+                            @"#2980b9", @"#8e44ad", @"#16a085", @"#ecf0f1",
+                            @"#34495e", @"#e74c3c", @"#2ecc71", @"#f39c12",
+                            @"#3498db", @"#9b59b6", @"#1abc9c", @"#ffffff",
+                          ]]
+                           darkPalette:[[Palette alloc] initWithForegroundColor:@"#d6e3f0"
+                                                                backgroundColor:@"#0b0f14"
+                                                                    cursorColor:@"#00a8ff"
+                                                          colorPaletteOverrides:@[
+                            @"#0b0f14", @"#ff5555", @"#50fa7b", @"#f1fa8c",
+                            @"#4da6ff", @"#bd93f9", @"#8be9fd", @"#f8f8f2",
+                            @"#6272a4", @"#ff6e6e", @"#69ff94", @"#ffffa5",
+                            @"#6db3f2", @"#d6acff", @"#a4ffff", @"#ffffff",
+                           ]]
+                            appearance:ThemeAppearance.alwaysDark
+            ],
             // Because this is a hidden theme, it needs to be last. There's
             // logic in UserPreferences and ThemesViewController which will not
             // work correctly otherwise.
