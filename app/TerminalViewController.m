@@ -1084,8 +1084,17 @@
         return;
     }
 
-    // The imported file is copied to /root and starts immediately.
-    NSString *command = [NSString stringWithFormat:@"python3 /root/%@\n", [self shellQuote:filename]];
+    // The imported file is copied to /root and starts immediately. If the
+    // optional first-launch setup was skipped, install Python on demand so
+    // importing a .py file still works in a fresh LiveContainer/TrollStore
+    // filesystem.
+    NSString *quotedFilename = [self shellQuote:filename];
+    NSString *command = [NSString stringWithFormat:
+        @"if command -v python3 >/dev/null 2>&1; then python3 /root/%@; "
+         @"else echo 'iShell: Python 3 is not installed; installing it now...'; "
+         @"printf 'https://dl-cdn.alpinelinux.org/alpine/v3.19/main\\nhttps://dl-cdn.alpinelinux.org/alpine/v3.19/community\\n' > /etc/apk/repositories; "
+         @"apk update && apk add --no-cache python3 py3-pip && python3 /root/%@; "
+         @"fi\n", quotedFilename, quotedFilename];
     [self.terminal sendInput:[command dataUsingEncoding:NSUTF8StringEncoding]];
     } @finally {
         if (accessing) {
