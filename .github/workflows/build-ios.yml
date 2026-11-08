@@ -22,7 +22,10 @@ jobs:
           fetch-depth: 1
 
       - name: Install native build tools
-        run: brew install meson ninja
+        run: |
+          brew install meson ninja llvm lld
+          echo "$(brew --prefix llvm)/bin" >> "$GITHUB_PATH"
+          echo "$(brew --prefix lld)/bin" >> "$GITHUB_PATH"
 
       - name: Show Apple toolchain
         run: xcodebuild -version
