@@ -13,6 +13,7 @@
 #import "UserPreferences.h"
 #import "AboutViewController.h"
 #import "CurrentRoot.h"
+#import "Roots.h"
 #import "NSObject+SaneKVO.h"
 #import "LinuxInterop.h"
 #import "AppGroup.h"
@@ -1047,16 +1048,25 @@
 }
 
 - (void)importAndRunPythonFileAtURL:(NSURL *)sourceURL {
+    BOOL accessing = [sourceURL startAccessingSecurityScopedResource];
+    @try {
     NSString *filename = sourceURL.lastPathComponent;
     if (filename.length == 0 || ![filename.pathExtension.lowercaseString isEqualToString:@"py"]) {
         [self showMessage:@"Python file required" subtitle:@"Select a file ending in .py."];
         return;
     }
 
-    NSURL *containerURL = ContainerURL();
-    NSURL *homeURL = [[containerURL URLByAppendingPathComponent:@"roots"]
-                      URLByAppendingPathComponent:@"alpine/root"];
+    // Do not hard-code a root name here. The bundled filesystem is imported
+    // as "default" (and users can select/rename roots), while the Linux
+    // process always exposes the active root directory as /root.
+    NSString *rootName = Roots.instance.defaultRoot;
+    NSURL *homeURL = [[Roots.instance rootUrl:rootName]
+                      URLByAppendingPathComponent:@"root" isDirectory:YES];
     NSError *error = nil;
+    if (homeURL == nil || rootName.length == 0) {
+        [self showMessage:@"Import failed" subtitle:@"No active iShell filesystem was found."];
+        return;
+    }
     [[NSFileManager defaultManager] createDirectoryAtURL:homeURL
                               withIntermediateDirectories:YES
                                                attributes:nil
@@ -1077,6 +1087,11 @@
     // The imported file is copied to /root and starts immediately.
     NSString *command = [NSString stringWithFormat:@"python3 /root/%@\n", [self shellQuote:filename]];
     [self.terminal sendInput:[command dataUsingEncoding:NSUTF8StringEncoding]];
+    } @finally {
+        if (accessing) {
+            [sourceURL stopAccessingSecurityScopedResource];
+        }
+    }
 }
 
 #pragma mark - Drag and drop from Files
