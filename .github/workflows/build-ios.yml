@@ -51,8 +51,12 @@ jobs:
             -DENABLE_ACL=OFF \
             -DENABLE_XATTR=OFF \
             -DENABLE_TEST=OFF
+          # libarchive.xcodeproj references the project-level header at deps/config.h.
+          # Keep a copy beside the submodule sources for direct include lookup too.
+          cp build/libarchive-config/config.h deps/config.h
           cp build/libarchive-config/config.h deps/libarchive/config.h
-          test -s deps/libarchive/config.h
+          grep -q '^#define __LIBARCHIVE_CONFIG_H_INCLUDED 1$' deps/config.h
+          test -s deps/config.h
 
       - name: Build unsigned archive
         run: |
