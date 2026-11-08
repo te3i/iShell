@@ -1055,6 +1055,14 @@
         [self showMessage:@"Python file required" subtitle:@"Select a file ending in .py."];
         return;
     }
+    NSNumber *sourceIsDirectory = nil;
+    [sourceURL getResourceValue:&sourceIsDirectory
+                         forKey:NSURLIsDirectoryKey
+                          error:nil];
+    if (sourceIsDirectory.boolValue) {
+        [self showMessage:@"Import failed" subtitle:@"The selected .py item is a folder, not a Python file."];
+        return;
+    }
 
     // Do not hard-code a root name here. The bundled filesystem is imported
     // as "default" (and users can select/rename roots), while the Linux
@@ -1077,7 +1085,20 @@
     }
 
     NSData *script = [NSData dataWithContentsOfURL:sourceURL options:NSDataReadingMappedIfSafe error:&error];
-    if (!script || ![script writeToURL:[homeURL URLByAppendingPathComponent:filename]
+    NSURL *destinationURL = [homeURL URLByAppendingPathComponent:filename isDirectory:NO];
+    BOOL destinationIsDirectory = NO;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:destinationURL.path
+                                              isDirectory:&destinationIsDirectory]
+        && destinationIsDirectory) {
+        // A previous broken import may have left /root/foo.py as a directory.
+        // Remove that directory so the selected Python file can occupy the
+        // expected path.
+        if (![[NSFileManager defaultManager] removeItemAtURL:destinationURL error:&error]) {
+            [self showMessage:@"Import failed" subtitle:error.localizedDescription ?: @"Could not replace the old Python directory."];
+            return;
+        }
+    }
+    if (!script || ![script writeToURL:destinationURL
                               options:NSDataWritingAtomic
                                 error:&error]) {
         [self showMessage:@"Import failed" subtitle:error.localizedDescription ?: @"Could not copy the Python file."];
