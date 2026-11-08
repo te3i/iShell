@@ -24,7 +24,7 @@
 #include "kernel/calls.h"
 #include "fs/devices.h"
 
-@interface TerminalViewController () <UIGestureRecognizerDelegate, UIDocumentPickerDelegate>
+@interface TerminalViewController () <UIGestureRecognizerDelegate, UIDocumentPickerDelegate, UIDropInteractionDelegate>
 
 @property UITapGestureRecognizer *tapRecognizer;
 @property (weak, nonatomic) IBOutlet TerminalView *termView;
@@ -100,6 +100,10 @@
 
     // Initialize paste history
     self.pasteHistory = [NSMutableArray array];
+
+    if (@available(iOS 11.0, *)) {
+        [self.view addInteraction:[[UIDropInteraction alloc] initWithDelegate:self]];
+    }
 
     // Initialize terminal management
     self.currentTerminalNumber = 0; // Start with session 0 (the main session)
@@ -1051,7 +1055,7 @@
 
     NSURL *containerURL = ContainerURL();
     NSURL *homeURL = [[containerURL URLByAppendingPathComponent:@"roots"]
-                      URLByAppendingPathComponent:@"alpine/data"];
+                      URLByAppendingPathComponent:@"alpine/root"];
     NSError *error = nil;
     [[NSFileManager defaultManager] createDirectoryAtURL:homeURL
                               withIntermediateDirectories:YES
@@ -1070,9 +1074,39 @@
         return;
     }
 
-    // The imported file is copied to the iSH home directory and starts immediately.
-    NSString *command = [NSString stringWithFormat:@"python3 ~/%@\n", [self shellQuote:filename]];
+    // The imported file is copied to /root and starts immediately.
+    NSString *command = [NSString stringWithFormat:@"python3 /root/%@\n", [self shellQuote:filename]];
     [self.terminal sendInput:[command dataUsingEncoding:NSUTF8StringEncoding]];
+}
+
+#pragma mark - Drag and drop from Files
+
+- (BOOL)dropInteraction:(UIDropInteraction *)interaction canHandleSession:(id<UIDropSession>)session API_AVAILABLE(ios(11.0)) {
+    return [session hasItemsConformingToTypeIdentifiers:@[@"public.item"]];
+}
+
+- (UIDropProposal *)dropInteraction:(UIDropInteraction *)interaction sessionDidUpdate:(id<UIDropSession>)session API_AVAILABLE(ios(11.0)) {
+    return [[UIDropProposal alloc] initWithDropOperation:UIDropOperationCopy];
+}
+
+- (void)dropInteraction:(UIDropInteraction *)interaction performDrop:(id<UIDropSession>)session API_AVAILABLE(ios(11.0)) {
+    [session loadObjectsOfClass:NSURL.class completion:^(NSArray<NSURL *> *items) {
+        NSURL *url = items.firstObject;
+        if (!url) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self showMessage:@"Drop failed" subtitle:@"Please drop a .py file from Files."];
+            });
+            return;
+        }
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            BOOL accessing = [url startAccessingSecurityScopedResource];
+            [self importAndRunPythonFileAtURL:url];
+            if (accessing) {
+                [url stopAccessingSecurityScopedResource];
+            }
+        });
+    }];
 }
 
 - (void)showCreateFileDialog {
@@ -2078,14 +2112,14 @@
         return;
     }
 
-    // iSH files are in roots/alpine/data
+    // The iSH home directory (/root) is stored at roots/alpine/root.
     NSURL *rootsURL = [containerURL URLByAppendingPathComponent:@"roots"];
     NSURL *alpineURL = [rootsURL URLByAppendingPathComponent:@"alpine"];
-    NSURL *dataURL = [alpineURL URLByAppendingPathComponent:@"data"];
+    NSURL *rootURL = [alpineURL URLByAppendingPathComponent:@"root"];
 
-    // Fallback to roots directory if alpine doesn't exist
-    NSURL *targetURL = dataURL;
-    if (![[NSFileManager defaultManager] fileExistsAtPath:dataURL.path]) {
+    // Fallback to the active root directory if the default root is not present.
+    NSURL *targetURL = rootURL;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:rootURL.path]) {
         targetURL = rootsURL;
     }
 
