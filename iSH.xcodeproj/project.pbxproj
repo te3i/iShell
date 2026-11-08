@@ -717,7 +717,7 @@
 		BB6DB260216435330047A611 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
 		BB78AB291FAD22440013E782 /* TerminalView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TerminalView.h; sourceTree = "<group>"; };
 		BB78AB2A1FAD22440013E782 /* TerminalView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TerminalView.m; sourceTree = "<group>"; };
-		BB792B501F96D90D00FFB7A4 /* XSH.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XSH.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB792B501F96D90D00FFB7A4 /* iShell.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iShell.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB792B531F96D90D00FFB7A4 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		BB792B541F96D90D00FFB7A4 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		BB792B561F96D90D00FFB7A4 /* TerminalViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TerminalViewController.h; sourceTree = "<group>"; };
@@ -1089,7 +1089,7 @@
 		BB792B511F96D90D00FFB7A4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				BB792B501F96D90D00FFB7A4 /* XSH.app */,
+				BB792B501F96D90D00FFB7A4 /* iShell.app */,
 				BB88F4902154760800A341FD /* iSHFileProvider.appex */,
 				BB13F7DC200AD81D003D1C4D /* libish.a */,
 				BBFB2C5B2590257E00545EAB /* libish_emu.a */,
@@ -1593,7 +1593,7 @@
 			);
 			name = iSH;
 			productName = iSH;
-			productReference = BB792B501F96D90D00FFB7A4 /* XSH.app */;
+			productReference = BB792B501F96D90D00FFB7A4 /* iShell.app */;
 			productType = "com.apple.product-type.application";
 		};
 		BB88F48F2154760800A341FD /* iSHFileProvider */ = {
@@ -2630,7 +2630,7 @@
 				DEVELOPMENT_TEAM = GLBVL5TD9Q;
 				MARKETING_VERSION = 1.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = app.ish.flo;
-				PRODUCT_NAME = XSH;
+				PRODUCT_NAME = iShell;
 				ROOT_BUNDLE_IDENTIFIER = app.ish.flo;
 			};
 			name = "Debug-ApplePleaseFixFB19282108";
@@ -2642,7 +2642,7 @@
 				DEVELOPMENT_TEAM = GLBVL5TD9Q;
 				MARKETING_VERSION = 1.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = app.ish.flo;
-				PRODUCT_NAME = XSH;
+				PRODUCT_NAME = iShell;
 				ROOT_BUNDLE_IDENTIFIER = app.ish.flo;
 			};
 			name = Release;
@@ -2663,7 +2663,7 @@
 				DEVELOPMENT_TEAM = GLBVL5TD9Q;
 				MARKETING_VERSION = 1.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = app.ish.flo;
-				PRODUCT_NAME = XSH;
+				PRODUCT_NAME = iShell;
 				ROOT_BUNDLE_IDENTIFIER = app.ish.flo;
 			};
 			name = DebugLinux;
@@ -2930,7 +2930,7 @@
 				DEVELOPMENT_TEAM = GLBVL5TD9Q;
 				MARKETING_VERSION = 1.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = app.ish.flo;
-				PRODUCT_NAME = XSH;
+				PRODUCT_NAME = iShell;
 				ROOT_BUNDLE_IDENTIFIER = app.ish.flo;
 			};
 			name = ReleaseLinux;

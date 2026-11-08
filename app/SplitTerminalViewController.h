@@ -2,7 +2,7 @@
 //  SplitTerminalViewController.h
 //  iSH
 //
-//  XSH Split Screen Terminal
+//  iShell Split Screen Terminal
 //
 
 #import <UIKit/UIKit.h>

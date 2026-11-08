@@ -2,7 +2,7 @@
 //  CodeEditorViewController.m
 //  iSH
 //
-//  XSH Code Editor with Syntax Highlighting
+//  iShell Code Editor with Syntax Highlighting
 //
 
 #import "CodeEditorViewController.h"

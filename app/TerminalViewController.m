@@ -18,7 +18,7 @@
 #import "AppGroup.h"
 #import "SplitTerminalViewController.h"
 #import "CodeEditorViewController.h"
-// ReverseEngineeringViewController removed - XSH Pro feature
+// ReverseEngineeringViewController removed - iShell Pro feature
 #include "kernel/init.h"
 #include "kernel/task.h"
 #include "kernel/calls.h"
@@ -1058,12 +1058,12 @@
 }
 
 - (void)openReverseEngineering {
-    // XSH Pro Feature - Show purchase dialog
-    UIAlertController *proAlert = [UIAlertController alertControllerWithTitle:@"🔐 XSH Pro Feature"
-                                                                      message:@"Reverse Engineering is a premium feature available in XSH Pro.\n\n✨ Features:\n• Binary Analysis\n• Disassembler\n• Pseudo Code Generator\n• Control Flow Graph\n• String Analysis\n\nUpgrade to XSH Pro to unlock!"
+    // iShell Pro Feature - Show purchase dialog
+    UIAlertController *proAlert = [UIAlertController alertControllerWithTitle:@"🔐 iShell Pro Feature"
+                                                                      message:@"Reverse Engineering is a premium feature available in iShell Pro.\n\n✨ Features:\n• Binary Analysis\n• Disassembler\n• Pseudo Code Generator\n• Control Flow Graph\n• String Analysis\n\nUpgrade to iShell Pro to unlock!"
                                                                preferredStyle:UIAlertControllerStyleAlert];
 
-    [proAlert addAction:[UIAlertAction actionWithTitle:@"Get XSH Pro" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    [proAlert addAction:[UIAlertAction actionWithTitle:@"Get iShell Pro" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSURL *proURL = [NSURL URLWithString:@"https://bye-thost.com/product/ish-نسخة-معدلة-من-xsh/"];
         [[UIApplication sharedApplication] openURL:proURL options:@{} completionHandler:nil];
     }]];
@@ -1204,7 +1204,7 @@
         [feedback impactOccurred];
     }
 
-    // XSH Pro Feature - Show purchase dialog
+    // iShell Pro Feature - Show purchase dialog
     [self openReverseEngineering];
 }
 
@@ -1685,12 +1685,13 @@
         [feedback notificationOccurred:UINotificationFeedbackTypeSuccess];
     }
 
-    UIAlertController *welcome = [UIAlertController alertControllerWithTitle:@"⚡ Welcome to XSH"
+    UIAlertController *welcome = [UIAlertController alertControllerWithTitle:@"⚡ Welcome to iShell"
                                                                        message:@"Set up the system with performance optimizations?\n\n"
-                                                                               @"📦 This will install:\n"
-                                                                               @"- Python 3 & pip (optimized)\n"
-                                                                               @"- wheel & setuptools\n"
-                                                                               @"- Latest system updates\n\n"
+                                                                               @"📦 Missing tools will be checked first:\n"
+                                                                               @"- Python 3, pip & virtual environments\n"
+                                                                               @"- Git, curl, wget & certificates\n"
+                                                                               @"- wheel & setuptools\n\n"
+                                                                               @"You can install, skip, or cancel.\n\n"
                                                                                @"⚡ Performance boosts:\n"
                                                                                @"- tmpfs cache (RAM-based)\n"
                                                                                @"- pip 5-10x faster\n"
@@ -1698,8 +1699,8 @@
                                                                                @"⏱️ Time: ~30-60 seconds"
                                                                 preferredStyle:UIAlertControllerStyleAlert];
 
-    // Yes button - Run auto setup
-    [welcome addAction:[UIAlertAction actionWithTitle:@"Yes, Update"
+    // Install button - run the dependency check and install only missing packages
+    [welcome addAction:[UIAlertAction actionWithTitle:@"Install Missing Tools"
                                                 style:UIAlertActionStyleDefault
                                               handler:^(UIAlertAction *action) {
         // Mark as shown
@@ -1710,8 +1711,8 @@
         [self runAutoSetup];
     }]];
 
-    // No button - Skip setup
-    [welcome addAction:[UIAlertAction actionWithTitle:@"No"
+    // Skip button - continue without installing anything
+    [welcome addAction:[UIAlertAction actionWithTitle:@"Skip"
                                                 style:UIAlertActionStyleCancel
                                               handler:^(UIAlertAction *action) {
         // Mark as shown
@@ -1722,6 +1723,7 @@
         [self showQuickTips];
     }]];
 
+    [welcome addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDestructive handler:nil]];
     [self presentViewController:welcome animated:YES completion:nil];
 }
 
@@ -1803,8 +1805,8 @@
                        "# Mount tmpfs for pip cache\n"
                        "mkdir -p /root/.cache/pip && mount -t tmpfs -o size=128m tmpfs /root/.cache/pip && "
                        "# Use official iSH repositories (stable and tested)\n"
-                       "echo 'http://apk.ish.app/v3.14-2023-05-19/main' > /etc/apk/repositories && "
-                       "echo 'http://apk.ish.app/v3.14-2023-05-19/community' >> /etc/apk/repositories && "
+                       "echo 'https://dl-cdn.alpinelinux.org/alpine/v3.19/main' > /etc/apk/repositories && "
+                       "echo 'https://dl-cdn.alpinelinux.org/alpine/v3.19/community' >> /etc/apk/repositories && "
                        "# Increase block write delay (performance boost)\n"
                        "echo 3000 > /proc/sys/vm/dirty_writeback_centisecs && "
                        "echo 5000 > /proc/sys/vm/dirty_expire_centisecs && "
@@ -1814,94 +1816,41 @@
             break;
 
         case 2:
-            // Install Python 3, pip, wheel, and essential tools + smart pip wrapper
-            command = @"apk add --no-cache python3 py3-pip py3-wheel openssh-client curl wget git && "
-                       "# Create smart pip wrapper that uses apk when possible\n"
-                       "cat > /usr/local/bin/pip-wrapper << 'EOFPIPWRAPPER'\n"
+            // Check for Python tooling first, then install only missing packages.
+            command = @"MISSING=\"\"; for pkg in python3 py3-pip py3-virtualenv py3-wheel py3-setuptools git curl wget ca-certificates; do apk info -e \"$pkg\" >/dev/null 2>&1 || MISSING=\"$MISSING $pkg\"; done\n"
+                       "if [ -n \"$MISSING\" ]; then echo \"iShell: installing missing packages:$MISSING\"; apk add --no-cache $MISSING || echo \"iShell: some packages could not be installed; continuing\"; else echo 'iShell: Python tools already installed'; fi\n"
+                       "mkdir -p /usr/local/bin /root/.config/pip\n"
+                       "cat > /root/.config/pip/pip.conf << 'EOFPIPCONF'\n"
+                       "[global]\nindex-url = https://pypi.org/simple\ndisable-pip-version-check = true\nprefer-binary = true\n"
+                       "EOFPIPCONF\n"
+                       "cat > /usr/local/bin/ishell-pip << 'EOFPIPWRAPPER'\n"
                        "#!/bin/sh\n"
-                       "# Smart pip wrapper - uses apk when possible, falls back to pip3\n"
-                       "\n"
-                       "# Handle install command\n"
-                       "if [ \"$1\" = \"install\" ]; then\n"
-                       "    shift\n"
-                       "    for pkg in \"$@\"; do\n"
-                       "        # Skip flags\n"
-                       "        if echo \"$pkg\" | grep -q '^-'; then continue; fi\n"
-                       "        \n"
-                       "        apk_pkg=\"py3-${pkg}\"\n"
-                       "        echo \"⚡ Trying apk: $apk_pkg\"\n"
-                       "        \n"
-                       "        # Try to install directly - if it exists, this will succeed\n"
-                       "        if apk add \"$apk_pkg\" 2>/dev/null; then\n"
-                       "            echo \"Installed via apk!\"\n"
-                       "            continue\n"
-                       "        fi\n"
-                       "        \n"
-                       "        echo \"⚠️ Not in apk, using pip3...\"\n"
-                       "        /usr/bin/pip3 install \"$pkg\"\n"
-                       "    done\n"
-                       "    exit 0\n"
-                       "fi\n"
-                       "\n"
-                       "# Handle uninstall command\n"
-                       "if [ \"$1\" = \"uninstall\" ]; then\n"
-                       "    shift\n"
-                       "    for pkg in \"$@\"; do\n"
-                       "        # Skip flags\n"
-                       "        if echo \"$pkg\" | grep -q '^-'; then continue; fi\n"
-                       "        \n"
-                       "        apk_pkg=\"py3-${pkg}\"\n"
-                       "        echo \"⚡ Trying apk: $apk_pkg\"\n"
-                       "        \n"
-                       "        # Check if installed via apk\n"
-                       "        if apk info -e \"$apk_pkg\" >/dev/null 2>&1; then\n"
-                       "            echo \"Removing via apk!\"\n"
-                       "            apk del \"$apk_pkg\"\n"
-                       "            continue\n"
-                       "        fi\n"
-                       "        \n"
-                       "        echo \"⚠️ Not installed via apk, using pip3...\"\n"
-                       "        /usr/bin/pip3 uninstall -y \"$pkg\"\n"
-                       "    done\n"
-                       "    exit 0\n"
-                       "fi\n"
-                       "\n"
-                       "# For all other commands, pass through to pip3\n"
-                       "exec /usr/bin/pip3 \"$@\"\n"
-                       "EOFPIPWRAPPER\n"
-                       "chmod +x /usr/local/bin/pip-wrapper && "
-                       "# Create aliases\n"
-                       "ln -sf /usr/local/bin/pip-wrapper /usr/local/bin/pip && "
-                       "ln -sf /usr/local/bin/pip-wrapper /usr/local/bin/pip3 && "
-                       "# Configure pip for better performance\n"
-                       "/usr/bin/pip3 config set global.no-cache-dir false && "
-                       "/usr/bin/pip3 config set global.disable-pip-version-check true && "
-                       "/usr/bin/pip3 config set install.no-build-isolation true && "
-                       "/usr/bin/pip3 config set install.prefer-binary true && "
-                       "# Install wheel to avoid rebuilding packages\n"
-                       "/usr/bin/pip3 install --no-cache-dir wheel setuptools || echo 'Wheel install may have issues but continuing...'; "
-                       "echo 'STEP_2_COMPLETE'\n";
-            statusMessage = @"Installing Python & smart pip wrapper...";
+                       "if [ \"$1\" = \"install\" ]; then shift; for pkg in \"$@\"; do case \"$pkg\" in -*) continue;; esac; apk_pkg=\"py3-${pkg}\"; if apk add --no-cache \"$apk_pkg\" >/dev/null 2>&1; then echo \"Installed $pkg from Alpine as $apk_pkg\"; else python3 -m pip install \"$pkg\"; fi; done; exit 0; fi\n"
+                       "exec python3 -m pip \"$@\"\n"
+                       "EOFPIPWRAPPER\nchmod +x /usr/local/bin/ishell-pip && ln -sf /usr/local/bin/ishell-pip /usr/local/bin/pip && ln -sf /usr/local/bin/ishell-pip /usr/local/bin/pip3\n"
+                       "cat > /usr/local/bin/ishell-doctor << 'EOFDOCTOR'\n"
+                       "#!/bin/sh\nmissing=0\nfor cmd in python3 pip3 git curl wget; do command -v \"$cmd\" >/dev/null 2>&1 || { echo \"MISSING command: $cmd\"; missing=1; }; done\npython3 -c 'import ssl, venv' >/dev/null 2>&1 || { echo 'MISSING Python module: ssl or venv'; missing=1; }\n[ $missing -eq 0 ] && echo 'iShell doctor: Python environment is ready'\nexit $missing\n"
+                       "EOFDOCTOR\nchmod +x /usr/local/bin/ishell-doctor && echo 'STEP_2_COMPLETE'\n";
+            statusMessage = @"Checking and installing Python tools...";
             progress = 0.75;
             break;
-
         case 3:
-            // Set up .bashrc with pip optimizations and welcome message
-            command = @"# Remove EXTERNALLY-MANAGED to allow pip install\n"
-                       "rm -f /usr/lib/python*/EXTERNALLY-MANAGED && "
-                       "# Configure .bashrc for optimized pip usage\n"
+            // Configure isolated Python environments and the welcome message.
+            command = @"# Configure .bashrc for isolated Python environments\n"
+                       "# Use a venv per project instead of changing system Python.\n"
                        "cat >> /root/.bashrc << 'EOFBASHRC'\n"
                        "\n"
-                       "# XSH Performance Optimizations\n"
+                       "# iShell Performance Optimizations\n"
                        "export PIP_CACHE_DIR=/tmp/pip-cache\n"
                        "export PATH=/usr/local/bin:$PATH\n"
+                       "alias python-project='python3 -m venv .venv && . .venv/bin/activate'\n"
                        "EOFBASHRC\n"
                        "# Load .bashrc immediately for current session\n"
                        "source /root/.bashrc && "
-                       "# Set up XSH custom welcome message\n"
+                       "# Set up iShell custom welcome message\n"
                        "cat > /etc/motd << 'EOFMOTD'\n"
                        "╔═══════════════════════════════════════════════╗\n"
-                       "║           Welcome to XSH Terminal             ║\n"
+                       "║           Welcome to iShell Terminal             ║\n"
                        "║       Advanced iOS Linux Environment          ║\n"
                        "╚═══════════════════════════════════════════════╝\n"
                        "\n"
@@ -1939,11 +1888,11 @@
         [feedback notificationOccurred:UINotificationFeedbackTypeSuccess];
     }
 
-    UIAlertController *complete = [UIAlertController alertControllerWithTitle:@"⚡ XSH Setup Complete"
+    UIAlertController *complete = [UIAlertController alertControllerWithTitle:@"⚡ iShell Setup Complete"
                                                                        message:@"System is ready & optimized!\n\n"
                                                                                @"✅ Installed:\n"
-                                                                               @"- Python 3 & pip (optimized)\n"
-                                                                               @"- wheel & setuptools\n"
+                                                                               @"- Python 3, pip & virtualenv (checked)\n"
+                                                                               @"- wheel, setuptools & certificates\n"
                                                                                @"- Latest system updates\n\n"
                                                                                @"⚡ Performance boosts:\n"
                                                                                @"- tmpfs cache (RAM-based)\n"
@@ -2027,25 +1976,25 @@
     }
 }
 
-- (void)applyXSHThemeIfNeeded {
+- (void)applyiShellThemeIfNeeded {
     // Check if theme has already been applied
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    BOOL hasAppliedTheme = [defaults boolForKey:@"HasAppliedXSHTheme"];
+    BOOL hasAppliedTheme = [defaults boolForKey:@"HasAppliediShellTheme"];
 
     if (!hasAppliedTheme) {
         // Wait 2 seconds for terminal to be ready
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)),
                       dispatch_get_main_queue(), ^{
-            [self applyXSHTheme];
-            [defaults setBool:YES forKey:@"HasAppliedXSHTheme"];
+            [self applyiShellTheme];
+            [defaults setBool:YES forKey:@"HasAppliediShellTheme"];
         });
     }
 }
 
-- (void)applyXSHTheme {
-    // Apply XSH welcome message silently in background
+- (void)applyiShellTheme {
+    // Apply iShell welcome message silently in background
     NSString *command = @"cat > /etc/motd << 'EOFMOTD'\n"
-                        "Welcome to XSH Terminal\n"
+                        "Welcome to iShell Terminal\n"
                         "Advanced iOS Linux Environment\n\n"
                         "EOFMOTD\n";
 

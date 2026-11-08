@@ -2,7 +2,7 @@
 //  ReverseEngineeringViewController.m
 //  iSH
 //
-//  XSH Pro Feature - Available at https://bye-thost.com/product/ish-نسخة-معدلة-من-xsh/
+//  iShell Pro Feature - Available at https://bye-thost.com/product/ish-نسخة-معدلة-من-xsh/
 //
 
 #import "ReverseEngineeringViewController.h"
@@ -12,19 +12,19 @@
 - (instancetype)initWithTerminal:(id)terminal {
     self = [super init];
     if (self) {
-        // XSH Pro Feature - Stub only
+        // iShell Pro Feature - Stub only
     }
     return self;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.title = @"XSH Pro Feature";
+    self.title = @"iShell Pro Feature";
     self.view.backgroundColor = [UIColor blackColor];
 
     // Show Pro message
     UILabel *proLabel = [[UILabel alloc] init];
-    proLabel.text = @"🔐 XSH Pro Feature\n\nReverse Engineering is available in XSH Pro.\n\nVisit: bye-thost.com";
+    proLabel.text = @"🔐 iShell Pro Feature\n\nReverse Engineering is available in iShell Pro.\n\nVisit: bye-thost.com";
     proLabel.textColor = [UIColor whiteColor];
     proLabel.textAlignment = NSTextAlignmentCenter;
     proLabel.numberOfLines = 0;

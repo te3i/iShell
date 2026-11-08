@@ -1,7 +1,7 @@
-# XSH - Advanced iOS Linux Terminal
+# iShell - Advanced iOS Linux Terminal
 
 <p align="center">
-  <img src="app/Assets.xcassets/AppIcon.appiconset/180.png" alt="XSH Logo" width="120"/>
+  <img src="app/Assets.xcassets/AppIcon.appiconset/180.png" alt="iShell Logo" width="120"/>
 </p>
 
 <p align="center">
@@ -17,11 +17,11 @@
 
 ---
 
-## 📱 What is XSH?
+## 📱 What is iShell?
 
-XSH is a modified and enhanced version of [iSH](https://github.com/ish-app/ish) - a Linux shell for iOS. XSH brings significant performance improvements, new features, and a better user experience.
+iShell is a modified and enhanced version of [iSH](https://github.com/ish-app/ish) - a Linux shell for iOS. iShell brings significant performance improvements, new features, and a better user experience.
 
-**XSH هو نسخة معدّلة ومحسّنة من iSH مع تحسينات كبيرة في الأداء وميزات جديدة.**
+**iShell هو نسخة معدّلة ومحسّنة من iSH مع تحسينات كبيرة في الأداء وميزات جديدة.**
 
 ---
 
@@ -52,7 +52,7 @@ XSH is a modified and enhanced version of [iSH](https://github.com/ish-app/ish) 
 # When you type:
 pip install flask
 
-# XSH automatically does:
+# iShell automatically does:
 apk add py3-flask  # ← 10-20x faster!
 
 # Falls back to pip3 only if package not in apk
@@ -66,14 +66,19 @@ apk add py3-flask  # ← 10-20x faster!
 - **Download Progress Indicator** - Visual progress for downloads
 - **Custom Welcome Message** - Informative MOTD
 
-### 📦 Pre-installed Tools
+### 📦 Python Setup
+At first launch, iShell checks for missing Python tools and asks before installing them. The default set is:
+- Python 3, pip, virtualenv and wheel
+- Git, curl, wget and CA certificates
+- Official Alpine v3.19 x86 repositories over HTTPS
 
-After first launch setup:
-- Python 3 + pip (optimized)
-- Git, curl, wget
-- OpenSSH client
-- Essential build tools
-
+Use `ishell-doctor` to check the environment. For project dependencies, prefer an isolated environment:
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements.txt
+```
+Data-science packages such as NumPy, pandas and Matplotlib are not installed automatically because they are large; install them per project when needed.
 ---
 
 ## 📥 Installation
@@ -91,7 +96,7 @@ After first launch setup:
 ```bash
 # Clone the repository
 git clone https://github.com/0xfff0800/XSH.git
-cd XSH
+cd iShell
 
 # Initialize submodules
 git submodule update --init --recursive
@@ -125,7 +130,7 @@ open iSH.xcodeproj
 
 ## 🔐 Pro Features
 
-Some advanced features are available in **XSH Pro**:
+Some advanced features are available in **iShell Pro**:
 
 ### Reverse Engineering Workspace
 - Binary Analysis
@@ -135,7 +140,7 @@ Some advanced features are available in **XSH Pro**:
 - String Analysis
 - Mach-O Parser
 
-**Get XSH Pro:** [bye-thost.com/product/ish-نسخة-معدلة-من-xsh/](https://bye-thost.com/product/ish-نسخة-معدلة-من-xsh/)
+**Get iShell Pro:** [bye-thost.com/product/ish-نسخة-معدلة-من-xsh/](https://bye-thost.com/product/ish-نسخة-معدلة-من-xsh/)
 
 ---
 
@@ -156,7 +161,7 @@ apk add py3-pandas py3-matplotlib
 ### Recommended Packages
 ```bash
 # Development
-apk add python3 py3-pip nodejs npm
+apk add python3 py3-pip py3-virtualenv py3-wheel
 
 # Networking
 apk add openssh curl wget nmap
@@ -196,7 +201,7 @@ apk add git tmux htop
 - **iSH** by [ish-app](https://github.com/ish-app/ish)
 - Licensed under GPL-3.0
 
-### XSH Modifications
+### iShell Modifications
 - Performance optimizations
 - Smart pip wrapper
 - UI enhancements
@@ -206,7 +211,7 @@ apk add git tmux htop
 
 ## ⚠️ Disclaimer
 
-This is a modified version of iSH for educational and personal use. XSH is not affiliated with the original iSH project.
+This is a modified version of iSH for educational and personal use. iShell is not affiliated with the original iSH project.
 
 ---
 

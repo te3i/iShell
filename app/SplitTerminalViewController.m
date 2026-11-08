@@ -2,7 +2,7 @@
 //  SplitTerminalViewController.m
 //  iSH
 //
-//  XSH Split Screen Terminal
+//  iShell Split Screen Terminal
 //
 
 #import "SplitTerminalViewController.h"
